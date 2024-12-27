@@ -235,7 +235,6 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = () => {
         document.body.removeChild(link);
     };
 
-    // @ts-ignore
     return (
         <div className="flex flex-row items-start">
             {moduleSize && qrCodeSize && moduleCount && qrcode ? (

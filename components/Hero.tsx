@@ -92,7 +92,6 @@ export default function Hero() {
     svgRef: React.createRef<SVGSVGElement>(),
   };
 
-  // @ts-ignore
   return (
       <section className="relative flex justify-center">
 
