@@ -13,10 +13,11 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-empty-interface": "off",
-
+      "react/jsx-no-useless-fragment": "off",
+      "react/jsx-curly-brace-presence": "off"
     },
   },
 ];

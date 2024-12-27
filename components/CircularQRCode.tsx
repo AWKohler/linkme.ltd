@@ -614,8 +614,8 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                     ? anglesAndDistances[0].angle + 2 * Math.PI
                     : anglesAndDistances[i + 1].angle;
 
-            let startAngle = start + gapRad;
-            let endAngle = end - gapRad;
+            const startAngle = start + gapRad;
+            const endAngle = end - gapRad;
             if (endAngle <= startAngle) {
                 continue;
             }
