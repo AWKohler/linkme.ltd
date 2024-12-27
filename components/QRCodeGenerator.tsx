@@ -8,7 +8,7 @@ import CircularQRCode from "./CircularQRCode"; // <-- Import from the file above
 // Expand the type to include "multiple"
 type QROptionType = "solid" | "gradient" | "multiple";
 
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface QRCodeGeneratorProps {}
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = () => {
