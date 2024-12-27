@@ -9,9 +9,10 @@ import CircularQRCode from "./CircularQRCode"; // <-- Import from the file above
 type QROptionType = "solid" | "gradient" | "multiple";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface QRCodeGeneratorProps {}
+// interface QRCodeGeneratorProps {}
 
-const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = () => {
+// const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = () => {
+const QRCodeGenerator: React.FC = () => {
     const [text, setText] = useState("https://example.com/");
 
     // State variables for background customization
