@@ -8,6 +8,7 @@ import CircularQRCode from "./CircularQRCode"; // <-- Import from the file above
 // Expand the type to include "multiple"
 type QROptionType = "solid" | "gradient" | "multiple";
 
+// @ts-ignore
 interface QRCodeGeneratorProps {}
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = () => {
