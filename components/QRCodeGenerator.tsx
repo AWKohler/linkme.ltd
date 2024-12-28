@@ -104,7 +104,14 @@ const QRCodeGenerator: React.FC = () => {
 
     // QR code info
     const [moduleSize, setModuleSize] = useState<number | null>(null);
-    const [qrCodeSize, setQrCodeSize] = useState<number>(700);
+    const [qrCodeSize, setQrCodeSize] = useState<number>(470);//700
+
+
+    const [qrTrimCircle, setQrTrimCircle] = useState(false);
+    const [qrTrimCircleRadius, setQrTrimCircleRadius] = useState<number>(300);
+
+
+
     const [moduleCount, setModuleCount] = useState<number | null>(null);
     const [qrcode, setQrcode] = useState<any>(null);
 
@@ -279,7 +286,7 @@ const QRCodeGenerator: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* QR Code Preview Section */}
                 <div className="lg:w-1/2">
-                    <Card className="p-6 bg-white shadow-lg">
+                    <Card className="p-6 bg-white shadow-lg aspect-square">
                         <div className="flex justify-center">
                             {moduleSize && qrCodeSize && moduleCount && qrcode ? (
                                 <CircularQRCode
@@ -309,6 +316,10 @@ const QRCodeGenerator: React.FC = () => {
                                     imageScale={imageScale}
                                     moduleSize={moduleSize}
                                     qrCodeSize={qrCodeSize}
+
+                                    qrTrimCircle={qrTrimCircle}
+                                    qrTrimCircleRadius={qrTrimCircleRadius}
+
                                     moduleCount={moduleCount}
                                     borderColor={borderColor}
                                     borderWidth={borderWidth}
@@ -330,7 +341,8 @@ const QRCodeGenerator: React.FC = () => {
                                     letterSpacing={letterSpacing}
                                     condensed={condensed}
                                     textPadding={textPadding}
-                                    canvasSize={canvasSize}
+                                    // canvasSize={canvasSize}
+                                    canvasSize={700}
                                     barsEnabled={barsEnabled}
                                     barsColor={barsColor}
                                     barsWidth={barsWidth}
@@ -414,6 +426,33 @@ const QRCodeGenerator: React.FC = () => {
                                                 <span className="w-16 text-right">{qrCodeSize}px</span>
                                             </div>
                                         </div>
+
+                                        <div className="flex items-center gap-2 mt-4">
+                                            <Switch checked={qrTrimCircle} onCheckedChange={setQrTrimCircle} />
+                                            <Label className="font-semibold cursor-pointer">
+                                                QR code trim circle
+                                            </Label>
+                                        </div>
+
+
+                                        {qrTrimCircle && (
+                                            <div className="space-y-2">
+                                                <Label className="font-semibold">QR code trim circle radius</Label>
+                                                <div className="flex items-center gap-4">
+                                                    <Slider
+                                                        min={50}
+                                                        max={600}
+                                                        step={10}
+                                                        value={[qrTrimCircleRadius]}
+                                                        onValueChange={(value) => setQrTrimCircleRadius(value[0])}
+                                                        className="flex-1"
+                                                    />
+                                                    <span className="w-16 text-right">{qrTrimCircleRadius}px</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+
                                     </div>
                                 </TabsContent>
 
@@ -806,20 +845,20 @@ const QRCodeGenerator: React.FC = () => {
                                 <TabsContent value="border">
                                     <div className="space-y-6">
                                         {/* CANVAS SIZE */}
-                                        <div className="space-y-2">
-                                            <Label className="font-semibold">Canvas Size</Label>
-                                            <div className="flex items-center gap-4">
-                                                <Slider
-                                                    min={500}
-                                                    max={2000}
-                                                    step={100}
-                                                    value={[canvasSize]}
-                                                    onValueChange={(value) => setCanvasSize(value[0])}
-                                                    className="flex-1"
-                                                />
-                                                <span className="w-16 text-right">{canvasSize}px</span>
-                                            </div>
-                                        </div>
+                                        {/*<div className="space-y-2">*/}
+                                        {/*    <Label className="font-semibold">Canvas Size</Label>*/}
+                                        {/*    <div className="flex items-center gap-4">*/}
+                                        {/*        <Slider*/}
+                                        {/*            min={500}*/}
+                                        {/*            max={2000}*/}
+                                        {/*            step={100}*/}
+                                        {/*            value={[canvasSize]}*/}
+                                        {/*            onValueChange={(value) => setCanvasSize(value[0])}*/}
+                                        {/*            className="flex-1"*/}
+                                        {/*        />*/}
+                                        {/*        <span className="w-16 text-right">{canvasSize}px</span>*/}
+                                        {/*    </div>*/}
+                                        {/*</div>*/}
 
                                         {/* OUTER BORDER */}
                                         <div className="space-y-2">

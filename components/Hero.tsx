@@ -39,6 +39,8 @@ export default function Hero() {
     qrcode,
     moduleSize,
     qrCodeSize,
+    qrTrimCircle: false,
+    qrTrimCircleRadius: 300,
     moduleCount,
     bgOption: "solid" as const,
     bgColor: "#ffffff",

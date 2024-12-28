@@ -29,6 +29,8 @@ interface CircularQRCodeProps {
     imageScale: number;
     moduleSize: number;
     qrCodeSize: number;
+    qrTrimCircle: boolean;
+    qrTrimCircleRadius: number;
     moduleCount: number;
     borderColor: string;
     borderWidth: number;
@@ -93,6 +95,8 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                                                            imageScale,
                                                            moduleSize,
                                                            qrCodeSize,
+                                                           qrTrimCircle,
+                                                           qrTrimCircleRadius,
                                                            moduleCount,
                                                            borderColor,
                                                            borderWidth,
@@ -187,6 +191,30 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         );
     };
 
+    function rectangleIntersectsCircle(
+        rect: { x: number; y: number; width: number; height: number },
+        circle: { x: number; y: number; radius: number }
+    ): boolean {
+        // Find the closest point on the rectangle to the circle's center
+        const closestX = clamp(circle.x, rect.x, rect.x + rect.width);
+        const closestY = clamp(circle.y, rect.y, rect.y + rect.height);
+
+        // Compute the distance from that point to the circle's center
+        const distX = circle.x - closestX;
+        const distY = circle.y - closestY;
+        const distanceSquared = distX * distX + distY * distY;
+        const radiusSquared = circle.radius * circle.radius;
+
+        // They intersect if distance from circle center to the rectangle
+        // is less than or equal to the circle's radius
+        return distanceSquared <= radiusSquared;
+    }
+
+    // Utility for clamping a value between min and max
+    function clamp(value: number, min: number, max: number): number {
+        return Math.max(min, Math.min(value, max));
+    }
+
     // -----------------------------
     //  Normal QR modules
     // -----------------------------
@@ -214,6 +242,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
 
                 // Check if it intersects center gap
                 const moduleRect = { x, y, width: moduleSize, height: moduleSize };
+
                 const gapRect = {
                     x: centerGapX,
                     y: centerGapY,
@@ -221,6 +250,16 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                     height: centerGapHeight,
                 };
                 if (rectanglesIntersect(moduleRect, gapRect)) {
+                    continue;
+                }
+
+                const trimCircle = {
+                    x: qrCodeSize / 2,
+                    y: qrCodeSize / 2,
+                    radius: qrTrimCircleRadius,
+                };
+
+                if (!rectangleIntersectsCircle(moduleRect, trimCircle) && qrTrimCircle) {
                     continue;
                 }
 
