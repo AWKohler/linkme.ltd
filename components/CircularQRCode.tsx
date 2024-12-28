@@ -57,6 +57,13 @@ interface CircularQRCodeProps {
     barsGapDegrees: number;
     barsRoundEnds: boolean;
     barsRadiusOffset: number;
+
+    /**
+     * NEW: Gradient stops for background and QR code
+     * (Used to dynamically generate <stop> elements in the <defs>)
+     */
+    bgGradientStops?: { color: string; position: number }[];
+    qrGradientStops?: { color: string; position: number }[];
 }
 
 const CircularQRCode: React.FC<CircularQRCodeProps> = ({
@@ -114,40 +121,60 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                                                            barsGapDegrees,
                                                            barsRoundEnds,
                                                            barsRadiusOffset,
+
+                                                           // NEW optional props for gradient stops
+                                                           bgGradientStops = [],
+                                                           qrGradientStops = [],
                                                        }) => {
+    // -----------------------------
+    // Generate unique IDs
+    // -----------------------------
     const bgGradientId = `bgGradient-${Date.now()}`;
     const qrGradientId = `qrGradient-${Date.now()}`;
 
-    // For background fill
+    // -----------------------------
+    // Background fill
+    // -----------------------------
     const bgFill = bgOption === "solid" ? bgColor : `url(#${bgGradientId})`;
 
-    // For QR fill
+    // -----------------------------
+    // QR fill
+    // -----------------------------
     const qrFill = useMemo(() => {
         if (qrOption === "solid") {
             return qrColor;
         } else if (qrOption === "gradient") {
             return `url(#${qrGradientId})`;
         }
-        // "multiple" => handled in the rect loop
+        // "multiple" => handled in the rect loop with random picks
         return null;
     }, [qrOption, qrColor, qrGradientId]);
 
+    // -----------------------------
+    // Basic geometry / calculations
+    // -----------------------------
     const qrCodeOffsetX = (canvasSize - qrCodeSize) / 2;
     const qrCodeOffsetY = (canvasSize - qrCodeSize) / 2;
-
     const rxRy = (roundness / 100) * (moduleSize / 2);
+
+    // Variation parameters
     const minOpacity = 0.7;
     const maxOpacityVariation = (opacityVariation / 100) * (1 - minOpacity);
 
+    // Finder pattern positions for a typical QR
     const finderPatternPositions = [
         { row: 0, col: 0 },
         { row: 0, col: moduleCount - 7 },
         { row: moduleCount - 7, col: 0 },
     ];
 
+    // Center gap
     const centerGapX = (qrCodeSize - centerGapWidth) / 2;
     const centerGapY = (qrCodeSize - centerGapHeight) / 2;
 
+    // -----------------------------
+    //  Helper: Rect Intersection
+    // -----------------------------
     const rectanglesIntersect = (
         r1: { x: number; y: number; width: number; height: number },
         r2: { x: number; y: number; width: number; height: number }
@@ -160,7 +187,9 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         );
     };
 
-    // Normal modules
+    // -----------------------------
+    //  Normal QR modules
+    // -----------------------------
     const qrRects = useMemo(() => {
         const rects: React.ReactNode[] = [];
 
@@ -174,65 +203,65 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                         col < pos.col + 7
                 );
 
-                if (qrcode.isDark(row, col)) {
-                    if (isFinderPattern) {
-                        continue;
-                    }
-
-                    const x = col * moduleSize;
-                    const y = row * moduleSize;
-
-                    const moduleRect = { x, y, width: moduleSize, height: moduleSize };
-                    const gapRect = {
-                        x: centerGapX,
-                        y: centerGapY,
-                        width: centerGapWidth,
-                        height: centerGapHeight,
-                    };
-
-                    // Skip if it intersects the center gap
-                    if (rectanglesIntersect(moduleRect, gapRect)) {
-                        continue;
-                    }
-
-                    const opacity = 1 - Math.random() * maxOpacityVariation;
-
-                    // If multiple-colors, pick randomly. Otherwise, use qrFill
-                    let fillColor: string | null = qrFill || "#000000";
-                    if (qrOption === "multiple") {
-                        const randomIndex = Math.floor(Math.random() * qrPalette.length);
-                        fillColor = qrPalette[randomIndex];
-                    }
-
-                    // Scale Variation: random factor between [1 - scaleVariation/100, 1.0]
-                    const randScaleFactor = 1 - Math.random() * (scaleVariation / 100);
-                    const finalScaleX = rectScaleX * randScaleFactor;
-                    const finalScaleY = rectScaleY * randScaleFactor;
-
-                    rects.push(
-                        <g
-                            key={`${row}-${col}`}
-                            transform={`
-                translate(${x + moduleSize / 2}, ${y + moduleSize / 2})
-                rotate(${rectRotation})
-                scale(${finalScaleX}, ${finalScaleY})
-                translate(${-moduleSize / 2}, ${-moduleSize / 2})
-              `}
-                        >
-                            <rect
-                                width={moduleSize}
-                                height={moduleSize}
-                                rx={rxRy}
-                                ry={rxRy}
-                                fill={fillColor}
-                                style={{
-                                    shapeRendering: "crispEdges",
-                                    opacity: opacity,
-                                }}
-                            />
-                        </g>
-                    );
+                // If it's not a dark module or is part of finder => skip
+                if (!qrcode.isDark(row, col) || isFinderPattern) {
+                    continue;
                 }
+
+                // Coordinates in the overall QR code area
+                const x = col * moduleSize;
+                const y = row * moduleSize;
+
+                // Check if it intersects center gap
+                const moduleRect = { x, y, width: moduleSize, height: moduleSize };
+                const gapRect = {
+                    x: centerGapX,
+                    y: centerGapY,
+                    width: centerGapWidth,
+                    height: centerGapHeight,
+                };
+                if (rectanglesIntersect(moduleRect, gapRect)) {
+                    continue;
+                }
+
+                // Variation in opacity
+                const opacity = 1 - Math.random() * maxOpacityVariation;
+
+                // If multiple-colors => pick randomly; else use qrFill
+                let fillColor: string | null = qrFill || "#000000";
+                if (qrOption === "multiple") {
+                    const randomIndex = Math.floor(Math.random() * qrPalette.length);
+                    fillColor = qrPalette[randomIndex];
+                }
+
+                // Scale Variation => random factor in [1 - scaleVariation/100, 1.0]
+                const randScaleFactor = 1 - Math.random() * (scaleVariation / 100);
+                const finalScaleX = rectScaleX * randScaleFactor;
+                const finalScaleY = rectScaleY * randScaleFactor;
+
+                rects.push(
+                    <g
+                        key={`${row}-${col}`}
+                        transform={`
+              translate(${x + moduleSize / 2}, ${y + moduleSize / 2})
+              rotate(${rectRotation})
+              scale(${finalScaleX}, ${finalScaleY})
+              translate(${-moduleSize / 2}, ${-moduleSize / 2})
+            `}
+                    >
+                        <rect
+                            width={moduleSize}
+                            height={moduleSize}
+                            rx={rxRy}
+                            ry={rxRy}
+                            fill={fillColor}
+                            style={{
+                                shapeRendering: "crispEdges",
+                                opacity: opacity,
+                            }}
+                        />
+                    </g>
+                );
             }
         }
         return rects;
@@ -256,17 +285,20 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         rectRotation,
     ]);
 
-    // Finder Patterns
+    // -----------------------------
+    //  Finder Patterns
+    // -----------------------------
     const finderPatterns = useMemo(() => {
         const patterns: React.ReactNode[] = [];
+
         finderPatternPositions.forEach((pos, index) => {
             const xOuter = pos.col * moduleSize;
             const yOuter = pos.row * moduleSize;
             const sizeOuter = moduleSize * 7;
             const sizeMiddle = moduleSize * 5;
             const sizeInner = moduleSize * 3;
-
             const maxRadius = sizeInner / 2;
+
             const rxRyFinder = Math.min(
                 (finderRoundness / 100) * (sizeOuter / 2),
                 maxRadius
@@ -275,6 +307,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
             const offsetMiddle = (sizeOuter - sizeMiddle) / 2;
             const offsetInner = (sizeOuter - sizeInner) / 2;
 
+            // Decide finder fill based on user choice
             let finderFill =
                 finderPatternOption === "solid" ? finderPatternColor : qrFill;
 
@@ -294,29 +327,28 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                     {/* Outer + Middle squares */}
                     <path
                         d={`
-                  M ${xOuter + rxRyFinder},${yOuter}
-                  h ${sizeOuter - 2 * rxRyFinder}
-                  q ${rxRyFinder},0 ${rxRyFinder},${rxRyFinder}
-                  v ${sizeOuter - 2 * rxRyFinder}
-                  q 0,${rxRyFinder} -${rxRyFinder},${rxRyFinder}
-                  h -${sizeOuter - 2 * rxRyFinder}
-                  q -${rxRyFinder},0 -${rxRyFinder},-${rxRyFinder}
-                  v -${sizeOuter - 2 * rxRyFinder}
-                  q 0,-${rxRyFinder} ${rxRyFinder},-${rxRyFinder}
-                  z
-                  M ${xOuter + offsetMiddle + rxRyFinder},${
-                            yOuter + offsetMiddle
-                        }
-                  h ${sizeMiddle - 2 * rxRyFinder}
-                  q ${rxRyFinder},0 ${rxRyFinder},${rxRyFinder}
-                  v ${sizeMiddle - 2 * rxRyFinder}
-                  q 0,${rxRyFinder} -${rxRyFinder},${rxRyFinder}
-                  h -${sizeMiddle - 2 * rxRyFinder}
-                  q -${rxRyFinder},0 -${rxRyFinder},-${rxRyFinder}
-                  v -${sizeMiddle - 2 * rxRyFinder}
-                  q 0,-${rxRyFinder} ${rxRyFinder},-${rxRyFinder}
-                  z
-                `}
+              M ${xOuter + rxRyFinder},${yOuter}
+              h ${sizeOuter - 2 * rxRyFinder}
+              q ${rxRyFinder},0 ${rxRyFinder},${rxRyFinder}
+              v ${sizeOuter - 2 * rxRyFinder}
+              q 0,${rxRyFinder} -${rxRyFinder},${rxRyFinder}
+              h -${sizeOuter - 2 * rxRyFinder}
+              q -${rxRyFinder},0 -${rxRyFinder},-${rxRyFinder}
+              v -${sizeOuter - 2 * rxRyFinder}
+              q 0,-${rxRyFinder} ${rxRyFinder},-${rxRyFinder}
+              z
+
+              M ${xOuter + offsetMiddle + rxRyFinder},${yOuter + offsetMiddle}
+              h ${sizeMiddle - 2 * rxRyFinder}
+              q ${rxRyFinder},0 ${rxRyFinder},${rxRyFinder}
+              v ${sizeMiddle - 2 * rxRyFinder}
+              q 0,${rxRyFinder} -${rxRyFinder},${rxRyFinder}
+              h -${sizeMiddle - 2 * rxRyFinder}
+              q -${rxRyFinder},0 -${rxRyFinder},-${rxRyFinder}
+              v -${sizeMiddle - 2 * rxRyFinder}
+              q 0,-${rxRyFinder} ${rxRyFinder},-${rxRyFinder}
+              z
+            `}
                         fill={finderFill!}
                         fillRule="evenodd"
                     />
@@ -333,6 +365,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 </g>
             );
         });
+
         return patterns;
     }, [
         moduleSize,
@@ -347,14 +380,17 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         qrGradientId,
     ]);
 
-    // Background rects
+    // -----------------------------
+    //  Background rects
+    // -----------------------------
     const backgroundRects = useMemo(() => {
         const rects: React.ReactNode[] = [];
         const gridCount = Math.ceil(canvasSize / moduleSize);
         const radius = canvasSize / 2;
 
         const coverageRadius = (backgroundCoverage / 100) * radius;
-        const maxDistanceAllowed = coverageRadius - (moduleSize * Math.SQRT2) / 2;
+        const maxDistanceAllowed =
+            coverageRadius - (moduleSize * Math.SQRT2) / 2; // approximate
 
         for (let row = 0; row < gridCount; row++) {
             for (let col = 0; col < gridCount; col++) {
@@ -366,11 +402,12 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 const dy = rectCenterY - radius;
                 const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
 
+                // If it is outside coverage area => skip
                 if (distanceToCenter > maxDistanceAllowed) {
                     continue;
                 }
 
-                // Skip inside the QR code area
+                // If it's inside the QR code bounding box => skip
                 if (
                     x >= qrCodeOffsetX &&
                     x < qrCodeOffsetX + qrCodeSize &&
@@ -380,17 +417,18 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                     continue;
                 }
 
+                // For background pattern, let's randomly fill ~half of them
                 if (Math.random() < 0.5) {
                     const opacity = 1 - Math.random() * maxOpacityVariation;
                     let fillColor: string | null = qrFill || "#000000";
+
                     if (qrOption === "multiple") {
                         const randomIndex = Math.floor(Math.random() * qrPalette.length);
                         fillColor = qrPalette[randomIndex];
                     }
 
-                    // Scale Variation: random factor between [1 - scaleVariation/100, 1.0]
-                    const randScaleFactor =
-                        1 - Math.random() * (scaleVariation / 100);
+                    // Scale Variation => random factor in [1 - scaleVariation/100, 1.0]
+                    const randScaleFactor = 1 - Math.random() * (scaleVariation / 100);
                     const finalScaleX = rectScaleX * randScaleFactor;
                     const finalScaleY = rectScaleY * randScaleFactor;
 
@@ -419,6 +457,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 }
             }
         }
+
         return rects;
     }, [
         canvasSize,
@@ -438,6 +477,13 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         rectRotation,
     ]);
 
+    // -----------------------------
+    //  Circular border geometry
+    // -----------------------------
+    const outerRadius = canvasSize / 2;
+    const innerRadius = outerRadius - borderWidth;
+
+    // Helper to create annulus path
     const generateAnnulusPath = (
         cx: number,
         cy: number,
@@ -455,10 +501,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
     `;
     };
 
-    const outerRadius = canvasSize / 2;
-    const innerRadius = outerRadius - borderWidth;
     let secondBorderPath = "";
-
     if (secondBorderEnabled) {
         const secondBorderOuterRadius =
             outerRadius - (secondBorderRange[0] / 100) * borderWidth;
@@ -473,6 +516,9 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         );
     }
 
+    // -----------------------------
+    //  Border text
+    // -----------------------------
     const textPaths = useMemo(() => {
         const paths: React.ReactNode[] = [];
         if (borderTextEnabled) {
@@ -575,18 +621,20 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         textPadding,
         outerRadius,
         canvasSize,
-        borderColor,
         borderWidth,
     ]);
 
-    // Bars
+    // -----------------------------
+    //  Finder Bars
+    // -----------------------------
     const finderBars = useMemo(() => {
         if (!barsEnabled) return null;
         const cx = canvasSize / 2;
         const cy = canvasSize / 2;
 
+        // Calculate the center positions of each finder pattern
         const fps = finderPatternPositions.map((pos) => {
-            const fx = pos.col + 3.5;
+            const fx = pos.col + 3.5; // center of finder
             const fy = pos.row + 3.5;
             const canvasX = qrCodeOffsetX + fx * moduleSize;
             const canvasY = qrCodeOffsetY + fy * moduleSize;
@@ -601,19 +649,26 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
             return { angle, dist };
         });
 
+        // Sort by angle in ascending order
         anglesAndDistances.sort((a, b) => a.angle - b.angle);
+
+        // Determine the furthest distance
         const maxDist = Math.max(...anglesAndDistances.map((ad) => ad.dist));
         const radius = maxDist + barsRadiusOffset;
+
+        // Convert gap in degrees to radians
         const gapRad = (barsGapDegrees * Math.PI) / 180;
 
         const arcs: React.ReactNode[] = [];
         for (let i = 0; i < anglesAndDistances.length; i++) {
             const start = anglesAndDistances[i].angle;
+            // If we hit the last point, connect it around 2π back to the first
             const end =
                 i === anglesAndDistances.length - 1
                     ? anglesAndDistances[0].angle + 2 * Math.PI
                     : anglesAndDistances[i + 1].angle;
 
+            // Trim angles by gap
             const startAngle = start + gapRad;
             const endAngle = end - gapRad;
             if (endAngle <= startAngle) {
@@ -639,6 +694,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 />
             );
         }
+
         return <g className="finderBars">{arcs}</g>;
     }, [
         barsEnabled,
@@ -654,6 +710,9 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
         qrCodeOffsetY,
     ]);
 
+    // -----------------------------
+    //  RENDER
+    // -----------------------------
     return (
         <svg
             ref={svgRef}
@@ -678,8 +737,13 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                                     canvasSize / 2
                                 }, ${canvasSize / 2})`}
                             >
-                                <stop offset="0%" stopColor={bgGradientColors[0]} />
-                                <stop offset="100%" stopColor={bgGradientColors[1]} />
+                                {bgGradientStops.map((stop, index) => (
+                                    <stop
+                                        key={index}
+                                        offset={`${stop.position}%`}
+                                        stopColor={stop.color}
+                                    />
+                                ))}
                             </linearGradient>
                         )}
                         {bgGradientType === "conic" && (
@@ -692,8 +756,13 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                                 fx="50%"
                                 fy="50%"
                             >
-                                <stop offset="0%" stopColor={bgGradientColors[0]} />
-                                <stop offset="100%" stopColor={bgGradientColors[1]} />
+                                {bgGradientStops.map((stop, index) => (
+                                    <stop
+                                        key={index}
+                                        offset={`${stop.position}%`}
+                                        stopColor={stop.color}
+                                    />
+                                ))}
                             </radialGradient>
                         )}
                     </>
@@ -714,8 +783,13 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                                     canvasSize / 2
                                 }, ${canvasSize / 2})`}
                             >
-                                <stop offset="0%" stopColor={qrGradientColors[0]} />
-                                <stop offset="100%" stopColor={qrGradientColors[1]} />
+                                {qrGradientStops.map((stop, index) => (
+                                    <stop
+                                        key={index}
+                                        offset={`${stop.position}%`}
+                                        stopColor={stop.color}
+                                    />
+                                ))}
                             </linearGradient>
                         )}
                         {qrGradientType === "conic" && (
@@ -728,15 +802,20 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                                 fx="50%"
                                 fy="50%"
                             >
-                                <stop offset="0%" stopColor={qrGradientColors[0]} />
-                                <stop offset="100%" stopColor={qrGradientColors[1]} />
+                                {qrGradientStops.map((stop, index) => (
+                                    <stop
+                                        key={index}
+                                        offset={`${stop.position}%`}
+                                        stopColor={stop.color}
+                                    />
+                                ))}
                             </radialGradient>
                         )}
                     </>
                 )}
             </defs>
 
-            {/* Background Circle */}
+            {/* Background Circle (solid or gradient) */}
             {(bgOption === "solid" || bgOption === "gradient") && (
                 <circle
                     className="circle-background"
@@ -744,18 +823,15 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                     cy={canvasSize / 2}
                     r={canvasSize / 2}
                     fill={bgFill}
-                    opacity="1"
                 ></circle>
             )}
 
-            {/* Background Rects */}
-            {backgroundRects && (
-                <g className="backgroundRects" id="backgroundRects">
-                    {backgroundRects}
-                </g>
-            )}
+            {/* Optional Background Rects (if user wants them) */}
+            <g className="backgroundRects" id="backgroundRects">
+                {backgroundRects}
+            </g>
 
-            {/* Outer Border */}
+            {/* Outer Border (circle) */}
             <circle
                 cx={canvasSize / 2}
                 cy={canvasSize / 2}
@@ -765,18 +841,18 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 strokeWidth={borderWidth}
             />
 
-            {/* Second Border */}
+            {/* Second Border (annulus) */}
             {secondBorderEnabled && (
                 <path d={secondBorderPath} fill={secondBorderColor} />
             )}
 
-            {/* Border Text */}
+            {/* Text on Border */}
             {borderTextEnabled && <g className="borderText">{textPaths}</g>}
 
-            {/* Bars (Arcs) */}
+            {/* Finder Bars */}
             {barsEnabled && finderBars}
 
-            {/* QR Code */}
+            {/* QR Code: modules + finder patterns */}
             <g
                 className="qrcode"
                 style={{
@@ -790,7 +866,7 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 <g className="finderPatterns">{finderPatterns}</g>
             </g>
 
-            {/* Overlay Image */}
+            {/* Optional center image */}
             {uploadedImageDataUrl && (
                 <g
                     className="overlayImage"

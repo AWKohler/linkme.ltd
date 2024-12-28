@@ -118,17 +118,17 @@ export default function Hero() {
               Design custom QR codes that match your brand. Easy to create, instant to download, and ready to share.
             </p>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button size="lg" asChild>
-                <Link href="/">
-                  Create QR Code
+              <Button size="lg" className={"rounded-full"} asChild>
+                <Link href="/qr">
+                  Create your free QR Code today!
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/">
-                  View Examples
-                </Link>
-              </Button>
+              {/*<Button variant="outline" size="lg" asChild>*/}
+              {/*  <Link href="/">*/}
+              {/*    View Examples*/}
+              {/*  </Link>*/}
+              {/*</Button>*/}
             </div>
           </div>
 
