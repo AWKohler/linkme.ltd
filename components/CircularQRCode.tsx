@@ -408,10 +408,11 @@ const CircularQRCode: React.FC<CircularQRCodeProps> = ({
                 }
 
                 // If it's inside the QR code bounding box => skip
+                // Add a 15px offset so it is a little bigger
                 if (
-                    x >= qrCodeOffsetX &&
+                    x >= qrCodeOffsetX - 15 &&
                     x < qrCodeOffsetX + qrCodeSize &&
-                    y >= qrCodeOffsetY &&
+                    y >= qrCodeOffsetY - 15 &&
                     y < qrCodeOffsetY + qrCodeSize
                 ) {
                     continue;
