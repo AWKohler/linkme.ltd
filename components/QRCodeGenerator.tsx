@@ -287,7 +287,8 @@ const QRCodeGenerator: React.FC = () => {
                 {/* QR Code Preview Section */}
                 <div className="lg:w-1/2">
                     <Card className="p-6 bg-white shadow-lg aspect-square">
-                        <div className="flex justify-center">
+                        {/*<div className="flex justify-center drop-shadow-lg">*/}
+                        <div className="flex justify-center drop-shadow">
                             {moduleSize && qrCodeSize && moduleCount && qrcode ? (
                                 <CircularQRCode
                                     qrcode={qrcode}
