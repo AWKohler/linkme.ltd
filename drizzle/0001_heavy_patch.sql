@@ -1,0 +1,1 @@
+ALTER TABLE "qrcodes" ADD COLUMN "enable_tracking" boolean DEFAULT false NOT NULL;

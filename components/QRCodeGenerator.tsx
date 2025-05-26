@@ -19,6 +19,7 @@ import {
     CircleDot,
     Download,
     Grid,
+    Save,
 } from 'lucide-react';
 
 // Import your custom CircularQRCode component
@@ -29,10 +30,22 @@ import CircularQRCode from './CircularQRCode';
 // -----------------------------
 type QROptionType = 'solid' | 'gradient' | 'multiple';
 
+interface QRCodeGeneratorProps {
+  initialData?: Record<string, unknown>;
+  onSave?: (designData: Record<string, unknown>) => void;
+  saving?: boolean;
+  isEditing?: boolean;
+}
+
 // -----------------------------
 //  QR CODE GENERATOR COMPONENT
 // -----------------------------
-const QRCodeGenerator: React.FC = () => {
+const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ 
+  initialData, 
+  onSave, 
+  saving = false, 
+  isEditing = false 
+}) => {
     // -----------------------------
     //  STATE VARIABLES
     // -----------------------------
@@ -181,6 +194,79 @@ const QRCodeGenerator: React.FC = () => {
         setQrGradientColors(qrGradientStops.map((stop) => stop.color));
     }, [qrGradientStops]);
 
+    // Initialize state from initialData prop
+    useEffect(() => {
+        if (initialData) {
+            if (initialData.text !== undefined) setText(initialData.text as string);
+            if (initialData.bgOption !== undefined) setBgOption(initialData.bgOption as 'solid' | 'gradient');
+            if (initialData.bgColor !== undefined) setBgColor(initialData.bgColor as string);
+            if (initialData.bgGradientType !== undefined) setBgGradientType(initialData.bgGradientType as 'linear' | 'conic');
+            if (initialData.bgGradientColors !== undefined) setBgGradientColors(initialData.bgGradientColors as string[]);
+            if (initialData.bgGradientAngle !== undefined) setBgGradientAngle(initialData.bgGradientAngle as number);
+            if (initialData.bgGradientStops !== undefined) setBgGradientStops(initialData.bgGradientStops as Array<{color: string; position: number}>);
+            if (initialData.qrOption !== undefined) setQrOption(initialData.qrOption as QROptionType);
+            if (initialData.qrColor !== undefined) setQrColor(initialData.qrColor as string);
+            if (initialData.qrGradientType !== undefined) setQrGradientType(initialData.qrGradientType as 'linear' | 'conic');
+            if (initialData.qrGradientColors !== undefined) setQrGradientColors(initialData.qrGradientColors as string[]);
+            if (initialData.qrGradientAngle !== undefined) setQrGradientAngle(initialData.qrGradientAngle as number);
+            if (initialData.qrGradientStops !== undefined) setQrGradientStops(initialData.qrGradientStops as Array<{color: string; position: number}>);
+            if (initialData.qrPalette !== undefined) setQrPalette(initialData.qrPalette as string[]);
+            if (initialData.finderPatternOption !== undefined) setFinderPatternOption(initialData.finderPatternOption as 'same' | 'solid');
+            if (initialData.finderPatternColor !== undefined) setFinderPatternColor(initialData.finderPatternColor as string);
+            if (initialData.borderColor !== undefined) setBorderColor(initialData.borderColor as string);
+            if (initialData.borderWidth !== undefined) setBorderWidth(initialData.borderWidth as number);
+            if (initialData.canvasSize !== undefined) setCanvasSize(initialData.canvasSize as number);
+            if (initialData.showText !== undefined) setShowText(initialData.showText as boolean);
+            if (initialData.roundness !== undefined) setRoundness(initialData.roundness as number);
+            if (initialData.finderRoundness !== undefined) setFinderRoundness(initialData.finderRoundness as number);
+            if (initialData.opacityVariation !== undefined) setOpacityVariation(initialData.opacityVariation as number);
+            if (initialData.rectScaleX !== undefined) setRectScaleX(initialData.rectScaleX as number);
+            if (initialData.rectScaleY !== undefined) setRectScaleY(initialData.rectScaleY as number);
+            if (initialData.scaleVariation !== undefined) setScaleVariation(initialData.scaleVariation as number);
+            if (initialData.rectRotation !== undefined) setRectRotation(initialData.rectRotation as number);
+            if (initialData.centerGapWidth !== undefined) setCenterGapWidth(initialData.centerGapWidth as number);
+            if (initialData.centerGapHeight !== undefined) setCenterGapHeight(initialData.centerGapHeight as number);
+            if (initialData.uploadedImageDataUrl !== undefined) setUploadedImageDataUrl(initialData.uploadedImageDataUrl as string | null);
+            if (initialData.imageScale !== undefined) setImageScale(initialData.imageScale as number);
+            if (initialData.qrCodeSize !== undefined) setQrCodeSize(initialData.qrCodeSize as number);
+            if (initialData.qrTrimCircle !== undefined) setQrTrimCircle(initialData.qrTrimCircle as boolean);
+            if (initialData.qrTrimCircleRadius !== undefined) setQrTrimCircleRadius(initialData.qrTrimCircleRadius as number);
+            if (initialData.backgroundCoverage !== undefined) setBackgroundCoverage(initialData.backgroundCoverage as number);
+            if (initialData.secondBorderEnabled !== undefined) setSecondBorderEnabled(initialData.secondBorderEnabled as boolean);
+            if (initialData.secondBorderColor !== undefined) setSecondBorderColor(initialData.secondBorderColor as string);
+            if (initialData.secondBorderRange !== undefined) setSecondBorderRange(initialData.secondBorderRange as [number, number]);
+            if (initialData.borderTextEnabled !== undefined) setBorderTextEnabled(initialData.borderTextEnabled as boolean);
+            if (initialData.textLine1 !== undefined) setTextLine1(initialData.textLine1 as string);
+            if (initialData.textLine2 !== undefined) setTextLine2(initialData.textLine2 as string);
+            if (initialData.numTextLines !== undefined) setNumTextLines(initialData.numTextLines as 1 | 2);
+            if (initialData.fontFamily !== undefined) setFontFamily(initialData.fontFamily as string);
+            if (initialData.fontSize !== undefined) setFontSize(initialData.fontSize as number);
+            if (initialData.textColor !== undefined) setTextColor(initialData.textColor as string);
+            if (initialData.fontWeight !== undefined) setFontWeight(initialData.fontWeight as string);
+            if (initialData.letterSpacing !== undefined) setLetterSpacing(initialData.letterSpacing as number);
+            if (initialData.condensed !== undefined) setCondensed(initialData.condensed as boolean);
+            if (initialData.textPadding !== undefined) setTextPadding(initialData.textPadding as number);
+            if (initialData.barsEnabled !== undefined) setBarsEnabled(initialData.barsEnabled as boolean);
+            if (initialData.barsColor !== undefined) setBarsColor(initialData.barsColor as string);
+            if (initialData.barsWidth !== undefined) setBarsWidth(initialData.barsWidth as number);
+            if (initialData.barsGapDegrees !== undefined) setBarsGapDegrees(initialData.barsGapDegrees as number);
+            if (initialData.barsRoundEnds !== undefined) setBarsRoundEnds(initialData.barsRoundEnds as boolean);
+            if (initialData.barsRadiusOffset !== undefined) setBarsRadiusOffset(initialData.barsRadiusOffset as number);
+        }
+    }, [initialData]);
+
+    // Update QR code text when enableTracking or relevant fields change
+    useEffect(() => {
+        if (initialData) {
+            const newText = initialData.enableTracking && initialData.slug 
+                ? `https://linkme.ltd/${initialData.slug}` 
+                : (initialData.targetUrl as string) || text;
+            if (newText !== text) {
+                setText(newText);
+            }
+        }
+    }, [initialData?.enableTracking, initialData?.slug, initialData?.targetUrl, initialData, text]);
+
     // -----------------------------
     //  HANDLERS
     // -----------------------------
@@ -203,6 +289,70 @@ const QRCodeGenerator: React.FC = () => {
         if (qrPalette.length < 6) {
             setQrPalette([...qrPalette, '#000000']); // default color
         }
+    };
+
+    const handleSave = () => {
+        if (!onSave) return;
+        
+        const designData = {
+            text,
+            bgOption,
+            bgColor,
+            bgGradientType,
+            bgGradientColors,
+            bgGradientAngle,
+            bgGradientStops,
+            qrOption,
+            qrColor,
+            qrGradientType,
+            qrGradientColors,
+            qrGradientAngle,
+            qrGradientStops,
+            qrPalette,
+            finderPatternOption,
+            finderPatternColor,
+            borderColor,
+            borderWidth,
+            canvasSize,
+            showText,
+            roundness,
+            finderRoundness,
+            opacityVariation,
+            rectScaleX,
+            rectScaleY,
+            scaleVariation,
+            rectRotation,
+            centerGapWidth,
+            centerGapHeight,
+            uploadedImageDataUrl,
+            imageScale,
+            qrCodeSize,
+            qrTrimCircle,
+            qrTrimCircleRadius,
+            backgroundCoverage,
+            secondBorderEnabled,
+            secondBorderColor,
+            secondBorderRange,
+            borderTextEnabled,
+            textLine1,
+            textLine2,
+            numTextLines,
+            fontFamily,
+            fontSize,
+            textColor,
+            fontWeight,
+            letterSpacing,
+            condensed,
+            textPadding,
+            barsEnabled,
+            barsColor,
+            barsWidth,
+            barsGapDegrees,
+            barsRoundEnds,
+            barsRadiusOffset,
+        };
+        
+        onSave(designData);
     };
 
     const handleExport = () => {
@@ -1297,6 +1447,17 @@ const QRCodeGenerator: React.FC = () => {
                                                         <option value="background">Background Only</option>
                                                     </select>
                                                 </div>
+                                            )}
+
+                                            {onSave && (
+                                                <Button
+                                                    onClick={handleSave}
+                                                    disabled={saving}
+                                                    className="w-full bg-green-500 hover:bg-green-600 text-white mt-2"
+                                                >
+                                                    <Save className="w-4 h-4 mr-2" />
+                                                    {saving ? 'Saving...' : (isEditing ? 'Update QR Code' : 'Save QR Code')}
+                                                </Button>
                                             )}
 
                                             <Button
