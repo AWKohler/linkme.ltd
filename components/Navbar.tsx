@@ -68,9 +68,14 @@ export default function Navbar() {
               Home
             </Link>
             {isSignedIn && (
-              <Link href="/dashboard" className={`text-sm font-medium transition-colors hover:text-blue-300 ${pathname.startsWith('/dashboard') ? 'text-blue-300' : 'text-white/90'}`}>
-                Dashboard
-              </Link>
+              <>
+                <Link href="/dashboard" className={`text-sm font-medium transition-colors hover:text-blue-300 ${pathname.startsWith('/dashboard') ? 'text-blue-300' : 'text-white/90'}`}>
+                  Dashboard
+                </Link>
+                <Link href="/analytics" className={`text-sm font-medium transition-colors hover:text-blue-300 ${pathname.startsWith('/analytics') ? 'text-blue-300' : 'text-white/90'}`}>
+                  Analytics
+                </Link>
+              </>
             )}
             <Button asChild variant="ghost" className="bg-white/10 hover:bg-white/20 text-white hover:text-white rounded-full">
               <Link href="/qr" className="flex items-center gap-2">
@@ -79,7 +84,7 @@ export default function Navbar() {
               </Link>
             </Button>
             {isSignedIn ? (
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             ) : (
               <SignInButton mode="modal">
                 <Button variant="ghost" className="bg-white/10 hover:bg-white/20 text-white hover:text-white rounded-full">
