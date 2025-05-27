@@ -209,13 +209,16 @@ export async function POST(request: NextRequest) {
         count: sql<number>`count(*)`
       })
       .from(scanEvents)
-      .where(inArray(scanEvents.qrCodeId, validQRCodeIds))
+      .where(and(
+        inArray(scanEvents.qrCodeId, validQRCodeIds),
+        sql`${scanEvents.userAgent} IS NOT NULL AND ${scanEvents.userAgent} != ''`
+      ))
       .groupBy(scanEvents.userAgent);
 
     const deviceBreakdown = deviceData.reduce(
       (acc, row) => {
-        const deviceType = parseUserAgent(row.userAgent);
-        acc[deviceType] += row.count;
+        const deviceType = parseUserAgent(row.userAgent || '');
+        acc[deviceType] += Number(row.count) || 0;
         return acc;
       },
       { android: 0, ios: 0, other: 0 }
@@ -293,7 +296,7 @@ export async function POST(request: NextRequest) {
       country: row.country || 'Unknown',
       city: row.city || 'Unknown',
       region: row.region || 'Unknown',
-      count: row.count,
+      count: Number(row.count) || 0,
       coordinates: COUNTRY_COORDINATES[row.country || ''] as [number, number] | undefined
     }));
 

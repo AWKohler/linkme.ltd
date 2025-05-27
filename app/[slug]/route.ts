@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { qrcodes, scanEvents } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { cacheHelpers } from '@/lib/redis';
 
 interface IPInfoResponse {
   ip: string;
@@ -42,6 +43,12 @@ async function getGeolocation(ip: string): Promise<IPInfoResponse | null> {
     return null;
   }
 
+  // Check Redis cache first
+  const cachedData = await cacheHelpers.getIPInfo(ip);
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
     const response = await fetch(`https://ipinfo.io/${ip}/json?token=${process.env.IPINFO_TOKEN}`, {
       headers: {
@@ -55,6 +62,10 @@ async function getGeolocation(ip: string): Promise<IPInfoResponse | null> {
     }
 
     const data: IPInfoResponse = await response.json();
+    
+    // Cache the result for future requests
+    await cacheHelpers.setIPInfo(ip, data);
+    
     return data;
   } catch (error) {
     console.error('Error fetching geolocation:', error);
@@ -69,22 +80,55 @@ export async function GET(
   try {
     const { slug } = await params;
     
-    // Look up QR code by slug
-    const qrCode = await db
-      .select()
-      .from(qrcodes)
-      .where(eq(qrcodes.slug, slug))
-      .limit(1);
+    // Check Redis cache for QR redirect first
+    const cachedTargetUrl = await cacheHelpers.getQRRedirect(slug);
+    
+    let qrCodeRecord;
+    let targetUrl;
+    
+    if (cachedTargetUrl) {
+      // Use cached target URL
+      targetUrl = cachedTargetUrl;
+      
+      // Still need to get QR record for tracking (could optimize this further)
+      const qrCode = await db
+        .select()
+        .from(qrcodes)
+        .where(eq(qrcodes.slug, slug))
+        .limit(1);
+        
+      if (qrCode.length === 0) {
+        // Cache might be stale, remove it
+        await cacheHelpers.removeQR(slug);
+        return NextResponse.json(
+          { error: 'QR code not found' }, 
+          { status: 404 }
+        );
+      }
+      
+      qrCodeRecord = qrCode[0];
+    } else {
+      // Cache miss - query database
+      const qrCode = await db
+        .select()
+        .from(qrcodes)
+        .where(eq(qrcodes.slug, slug))
+        .limit(1);
 
-    // Return 404 if QR code not found
-    if (qrCode.length === 0) {
-      return NextResponse.json(
-        { error: 'QR code not found' }, 
-        { status: 404 }
-      );
+      // Return 404 if QR code not found
+      if (qrCode.length === 0) {
+        return NextResponse.json(
+          { error: 'QR code not found' }, 
+          { status: 404 }
+        );
+      }
+
+      qrCodeRecord = qrCode[0];
+      targetUrl = qrCodeRecord.targetUrl;
+      
+      // Cache the target URL for future requests
+      await cacheHelpers.setQRRedirect(slug, targetUrl);
     }
-
-    const qrCodeRecord = qrCode[0];
 
     // Track scan event if tracking is enabled
     if (qrCodeRecord.enableTracking) {
@@ -111,7 +155,7 @@ export async function GET(
     }
 
     // Always redirect to the target URL
-    return NextResponse.redirect(qrCodeRecord.targetUrl, { status: 302 });
+    return NextResponse.redirect(targetUrl, { status: 302 });
     
   } catch (error) {
     console.error('Error processing QR code redirect:', error);

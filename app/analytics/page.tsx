@@ -179,7 +179,9 @@ export default function AnalyticsPage() {
     { name: 'Android', value: analytics.deviceBreakdown.android, color: DEVICE_COLORS.android },
     { name: 'iOS', value: analytics.deviceBreakdown.ios, color: DEVICE_COLORS.ios },
     { name: 'Other', value: analytics.deviceBreakdown.other, color: DEVICE_COLORS.other },
-  ].filter(item => item.value > 0) : [];
+  ] : [];
+  
+  const hasDeviceData = deviceChartData.some(item => item.value > 0);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -314,23 +316,32 @@ export default function AnalyticsPage() {
                     <CardTitle>Device Types</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={deviceChartData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          dataKey="value"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
-                        >
-                          {deviceChartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    {hasDeviceData ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={deviceChartData.filter(item => item.value > 0)}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                          >
+                            {deviceChartData.filter(item => item.value > 0).map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-[300px] text-gray-500">
+                        <div className="text-center">
+                          <p className="text-lg font-medium">No device data available</p>
+                          <p className="text-sm">Device information is collected from QR code scans</p>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 

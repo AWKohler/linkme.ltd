@@ -31,11 +31,12 @@ const WorldMap: React.FC<WorldMapProps> = ({ data }) => {
     
     const key = `${point.coordinates[0]},${point.coordinates[1]}`;
     if (acc[key]) {
-      acc[key].count += point.count;
+      acc[key].count = Number(acc[key].count) + Number(point.count);
       acc[key].cities.push(`${point.city}, ${point.region}`);
     } else {
       acc[key] = {
         ...point,
+        count: Number(point.count),
         cities: [`${point.city}, ${point.region}`]
       };
     }
