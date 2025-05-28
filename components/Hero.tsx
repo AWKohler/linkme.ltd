@@ -100,7 +100,7 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.7)_0%,rgba(59,130,246,0)_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(37,99,235,0.6)_0%,rgba(37,99,235,0)_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(29,78,216,0.5)_0%,rgba(29,78,216,0)_50%)]" />
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('/noise.png')]"></div>
+        {/* <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('/noise.png')]"></div> */}
       </div>
 
       <div className="container mx-auto px-4 md:px-6 py-12 md:py-24 lg:py-32 min-h-[calc(100vh-4rem)]">

@@ -4,12 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, ArrowLeft } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import {
+  Button,
+  Input,
+  Card,
+  CardBody,
+  CardHeader,
+  Switch,
+  Spinner
+} from '@heroui/react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CreateQRCodePage() {
@@ -42,7 +46,7 @@ export default function CreateQRCodePage() {
       });
 
       if (response.ok) {
-        router.push('/dashboard');
+        router.push('/codes');
       } else {
         console.error('Failed to save QR code');
       }
@@ -54,20 +58,25 @@ export default function CreateQRCodePage() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <Spinner size="lg" />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/dashboard">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold">Create QR Code</h1>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto py-8 px-4">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Link href="/codes">
+              <Button variant="ghost" startContent={<ArrowLeft className="w-4 h-4" />}>
+                Back to QR Codes
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold">Create QR Code</h1>
+          </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -86,38 +95,35 @@ export default function CreateQRCodePage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>QR Code Settings</CardTitle>
+              <h2 className="text-xl font-semibold">QR Code Settings</h2>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div>
-                <Label htmlFor="slug">Slug (URL identifier)</Label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Slug (URL identifier)</label>
                 <Input
-                  id="slug"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onValueChange={setSlug}
                   placeholder="my-qr-code"
+                  variant="bordered"
                 />
               </div>
               
               <div>
-                <Label htmlFor="targetUrl">Target URL</Label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Target URL</label>
                 <Input
-                  id="targetUrl"
                   value={targetUrl}
-                  onChange={(e) => setTargetUrl(e.target.value)}
+                  onValueChange={setTargetUrl}
                   placeholder="https://example.com"
+                  variant="bordered"
                 />
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-3">
                 <Switch
-                  id="enableTracking"
-                  checked={enableTracking}
-                  onCheckedChange={setEnableTracking}
+                  isSelected={enableTracking}
+                  onValueChange={setEnableTracking}
                 />
-                <Label htmlFor="enableTracking" className="cursor-pointer">
-                  Enable tracking
-                </Label>
+                <span className="text-sm font-medium">Enable tracking</span>
               </div>
               
               {enableTracking && (
@@ -127,8 +133,10 @@ export default function CreateQRCodePage() {
                   <p>This allows you to track scans, locations, and user agents.</p>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
+        </div>
+      </div>
         </div>
       </div>
     </div>

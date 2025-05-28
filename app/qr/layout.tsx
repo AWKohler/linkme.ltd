@@ -1,5 +1,6 @@
 import React, {Suspense} from "react";
 import Image from 'next/image'
+import { DivideCircle } from "lucide-react";
 
 const LandingLayout = ({
                            children
@@ -9,9 +10,9 @@ const LandingLayout = ({
     return (
         // <html lang={"en"} className={"bg-[#2d2d2a]"}>s
         // <html lang={"en"} className={"bg-[#1a1a1a]"}>
-        <html lang={"en"} className={"bg-gray-100"}>
+        <div lang={"en"} className={"bg-gray-100"}>
 
-        <body className={"overflow-hidden"}>
+        <div className={"overflow-hidden"}>
 
 
         <main className="flex w-full flex-col items-center justify-center">
@@ -21,8 +22,8 @@ const LandingLayout = ({
             </div>
 
         </main>
-        </body>
-        </html>
+        </div>
+        </div>
     );
 }
 
