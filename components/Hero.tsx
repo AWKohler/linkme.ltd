@@ -53,10 +53,10 @@ export default function Hero() {
     finderPatternOption: "same" as const,
     finderPatternColor: "#000000",
     showText: false,
-    roundness: 30,
+    roundness: 0,
     opacityVariation: 0,
-    finderRoundness: 30,
-    rectScaleX: 0.8,
+    finderRoundness: 0,
+    rectScaleX: 0.85,
     rectScaleY: 1.0,
     scaleVariation: 0,
     rectRotation: 0,
@@ -66,7 +66,7 @@ export default function Hero() {
     borderWidth: 10,
     centerGapWidth: 0,
     centerGapHeight: 0,
-    backgroundCoverage: 100,
+    backgroundCoverage: 95,
     secondBorderEnabled: false,
     secondBorderColor: "#000000",
     secondBorderRange: [0, 100] as [number, number],
@@ -92,137 +92,118 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative overflow-hidden pt-4">
-    {/* <section className="relative overflow-hidden"> */}
-      {/* Enhanced Background */}
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Modern gradient background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-800 via-blue-900 to-blue-950" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.7)_0%,rgba(59,130,246,0)_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(37,99,235,0.6)_0%,rgba(37,99,235,0)_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(29,78,216,0.5)_0%,rgba(29,78,216,0)_50%)]" />
-        {/* <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('/noise.png')]"></div> */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-violet-200/30 to-pink-200/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-r from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-gradient-radial from-purple-100/20 to-transparent rounded-full blur-2xl" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-24 lg:py-32 min-h-[calc(100vh-4rem)]">
-        {/* Content Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Text Content */}
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
-            <div className="inline-flex items-center justify-center p-2 bg-blue-600/20 backdrop-blur-sm rounded-full">
-              <QrCode className="h-5 w-5 text-blue-200" />
-              <span className="ml-2 text-xs font-medium text-blue-200">QR Code Generator</span>
+          <div className="flex flex-col space-y-8 text-center lg:text-left">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-100 to-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                <QrCode className="h-4 w-4" />
+                <span>Free QR Code Generator</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900">
+                Beautiful QR Codes
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-purple-600">
+                  Made Simple
+                </span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
+                Create stunning, customizable QR codes in seconds. Perfect for businesses, events, and personal use.
+              </p>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white">
-              Create Beautiful <span className="text-blue-300">QR Codes</span> in Seconds
-            </h1>
-            
-            <p className="text-lg text-blue-100/80 max-w-xl">
-              Design custom QR codes that match your brand. Easy to create, instant to download, and ready to share.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
-              <Button size="lg" className="rounded-full bg-white text-blue-900 hover:bg-blue-50 shadow-lg shadow-blue-900/20" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/25 transition-all hover:shadow-xl hover:shadow-purple-500/30" 
+                asChild
+              >
                 <Link href="/qr">
-                  Create your free QR Code today!
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Start Creating
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="rounded-full text-white border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:text-white" asChild>
-                <Link href="#">
-                  View Examples
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 transition-colors" 
+                asChild
+              >
+                <Link href="#features">
+                  Explore Features
                 </Link>
               </Button>
             </div>
           </div>
 
           {/* QR Code Preview */}
-
-          <div className="relative flex justify-center">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-indigo-500/10 to-purple-500/5 blur-3xl -z-10 rounded-full"></div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-200/20 via-purple-200/20 to-pink-200/20 blur-3xl" />
             
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-xl">
-              <div className="flex flex-col md:flex-row items-center gap-12">
-                {/* QR Code Display */}
-                {/* <div className="relative h-[300px] w-[300px] flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                  <div className="animate-pulse-slow">
-                    {moduleSize && qrcode && moduleCount && (
-                      <CircularQRCode {...qrProps} />
-                    )}
-                  </div>
-                </div> */}
-
-                {/* <div className="relative h-[300px] w-[300px] flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-2xl p-4"> */}
-                <div className="relative h-[300px] w-[300px] flex items-center justify-center p-8">
-                  <div className="animate-pulse-slow scale-75">
-                    {moduleSize && qrcode && moduleCount && (
-                      <CircularQRCode {...qrProps} />
-                    )}
+            <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+              <div className="space-y-6">
+                {/* Live QR Code Preview */}
+                <div className="flex justify-center">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-inner">
+                    <div className="transform transition-transform hover:scale-105">
+                      {moduleSize && qrcode && moduleCount && (
+                        <CircularQRCode {...qrProps} />
+                      )}
+                    </div>
                   </div>
                 </div>
                 
-                {/* Input Section */}
-                <div className="w-full max-w-sm space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="url" className="text-sm font-medium text-blue-100">
-                      Enter URL to generate QR code
-                    </label>
-                    <Input
-                      className="bg-white/10 border-white/20 text-white rounded-lg focus-visible:ring-blue-400"
-                      type="url"
-                      id="url"
-                      placeholder="https://example.com/"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                    />
-                  </div>
-                  <p className="text-xs text-blue-200/70">
-                    Your QR code updates automatically as you type
+                {/* Interactive URL Input */}
+                <div className="space-y-3">
+                  <label htmlFor="url" className="text-sm font-medium text-gray-700">
+                    Try it now - Enter any URL
+                  </label>
+                  <Input
+                    className="bg-gray-50 border-gray-200 text-gray-900 rounded-xl h-12 px-4 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    type="url"
+                    id="url"
+                    placeholder="https://example.com"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Watch your QR code update in real-time
                   </p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          
-          
-
-          {/* <div className="relative flex justify-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-indigo-500/10 to-purple-500/5 blur-3xl -z-10 rounded-full"></div>
-          
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="relative h-[250px] w-[250px] flex items-center justify-center bg-white/5 backdrop-blur-sm rounded-full p-3">
-                <div className="scale-[0.85]">
-                  {moduleSize && qrcode && moduleCount && (
-                    <CircularQRCode {...qrProps} />
-                  )}
-                </div>
-              </div>
-              
-              <div className="w-full max-w-sm space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="url" className="text-sm font-medium text-blue-100">
-                    Enter URL to generate QR code
-                  </label>
-                  <Input
-                    className="bg-white/10 border-white/20 text-white rounded-lg focus-visible:ring-blue-400"
-                    type="url"
-                    id="url"
-                    placeholder="https://example.com/"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                  />
-                </div>
-                <p className="text-xs text-blue-200/70">
-                  Your QR code updates automatically as you type
-                </p>
-              </div>
+        {/* Stats or Trust Indicators */}
+        <div className="mt-20 pt-12 border-t border-gray-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-3xl font-bold text-gray-900">10K+</p>
+              <p className="text-sm text-gray-600">QR Codes Created</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-gray-900">100%</p>
+              <p className="text-sm text-gray-600">Free Forever</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-gray-900">5★</p>
+              <p className="text-sm text-gray-600">User Rating</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-gray-900">∞</p>
+              <p className="text-sm text-gray-600">Unlimited Use</p>
             </div>
           </div>
-        </div> */}
-
-          
         </div>
       </div>
     </section>
