@@ -1,5 +1,7 @@
 ## Linkme.ltd
 
+## FOSS
+
 QR code generator, similar to the popular Flowcode
 
 
